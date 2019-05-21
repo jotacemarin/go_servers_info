@@ -19,4 +19,6 @@ func main() {
 	if err := chi.Walk(r, walkFunc); err != nil {
 		log.Panicf("error: %s", err.Error())
 	}
+
+	log.Fatal(http.ListenAndServe(":4500", r))
 }

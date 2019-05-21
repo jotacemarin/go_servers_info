@@ -1,7 +1,7 @@
 package analyzeroutes
 
 import (
-	analyzecontroller "../../controllers"
+	analyzecontroller "../../../controllers"
 	"github.com/go-chi/chi"
 )
 

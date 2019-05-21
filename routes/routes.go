@@ -1,7 +1,7 @@
 package routes
 
 import (
-	analyzeroutes "./v1"
+	analyzeroutes "./v1/analyze"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
