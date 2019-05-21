@@ -19,7 +19,7 @@ func Router() *chi.Mux {
 	)
 
 	router.Route("/api", func(r chi.Router) {
-		r.Mount("/v1/analyze", analyzeroutes.Routes())
+		r.Mount("/v1", analyzeroutes.Routes())
 	})
 
 	return router

@@ -8,6 +8,6 @@ import (
 // Routes for analyze endpoint
 func Routes() *chi.Mux {
 	router := chi.NewRouter()
-	router.Get("/", analyzecontroller.Index)
+	router.Get("/analyze", analyzecontroller.Index)
 	return router
 }
