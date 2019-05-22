@@ -7,11 +7,11 @@ import (
 )
 
 // ShellCall : func
-func ShellCall(c string) (map[string]string, error) {
+func ShellCall(command string, parameter string) (map[string]string, error) {
 	if thismachine := runtime.GOOS; thismachine == "windows" {
 		return nil, fmt.Errorf("Cant execute this command in %s", thismachine)
 	}
-	ser, err := shellExecution(c)
+	ser, err := shellExecution(command, parameter)
 	if err != nil {
 		return nil, err
 	}
@@ -19,10 +19,10 @@ func ShellCall(c string) (map[string]string, error) {
 }
 
 // ShellExecution : func
-func shellExecution(c string) (map[string]string, error) {
-	out, err := exec.Command(c).Output()
+func shellExecution(command string, parameter string) (map[string]string, error) {
+	out, err := exec.Command(command, parameter).Output()
 	if err != nil {
-		return nil, fmt.Errorf("Error: %s", err)
+		return nil, fmt.Errorf("%s", err)
 	}
 	output := string(out[:])
 	ser := make(map[string]string)

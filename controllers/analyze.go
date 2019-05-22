@@ -23,7 +23,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 func getDomainInfo(host string) (models.DomainR, error) {
 	configuration, errConfig := config.LoadConfig()
 	if errConfig != nil {
-		log.Panicf("error: %s", errConfig.Error())
+		log.Panicf("%s", errConfig.Error())
 	}
 	var domainr models.DomainR
 	er, err := commons.HTTPGet(fmt.Sprintf(configuration.SslLabs, host))
@@ -38,14 +38,14 @@ func getWhois(host string) (models.Domain, error) {
 	var domain models.Domain
 	er, errHTTPGet := getDomainInfo(host)
 	if errHTTPGet != nil {
-		log.Panicf("error: %s", errHTTPGet.Error())
+		log.Panicf("%s", errHTTPGet.Error())
 		return domain, errHTTPGet
 	}
 	for _, endpoint := range er.Endpoints {
 		log.Printf("%s", endpoint.IPAddress)
-		ser, errShellCall := commons.ShellCall(fmt.Sprintf("whois %s", endpoint.IPAddress))
+		ser, errShellCall := commons.ShellCall("whois", endpoint.IPAddress)
 		if errShellCall != nil {
-			log.Panicf("error: %s", errShellCall.Error())
+			log.Panicf("%s", errShellCall.Error())
 			return domain, errShellCall
 		}
 		log.Printf("%s", ser)
