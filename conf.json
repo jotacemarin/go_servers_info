@@ -1,0 +1,4 @@
+{
+    "port":":4500",
+    "ssllabs":"https://api.ssllabs.com/api/v3/analyze?host=%s"
+}
