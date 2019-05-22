@@ -13,43 +13,35 @@ import (
 
 // Index : funct
 func Index(w http.ResponseWriter, r *http.Request) {
-	information, err := getWhois(r.URL.Query().Get("host"))
-	if err != nil {
+	er, errDI := getDomainInfo(r.URL.Query().Get("host"))
+	information, errW := getWhois(er.Endpoints)
+	if errDI != nil || errW != nil {
 		commons.BuilderJSON(w, false, 0, nil)
 	}
-	commons.BuilderJSON(w, true, http.StatusOK, information)
+	log.Printf("%s", information)
+	commons.BuilderJSON(w, true, http.StatusOK, er)
 }
 
 func getDomainInfo(host string) (models.DomainR, error) {
-	configuration, errConfig := config.LoadConfig()
-	if errConfig != nil {
-		log.Panicf("%s", errConfig.Error())
-	}
 	var domainr models.DomainR
-	er, err := commons.HTTPGet(fmt.Sprintf(configuration.SslLabs, host))
-	if err != nil {
-		return domainr, err
+	configuration, errConfig := config.LoadConfig()
+	er, errHG := commons.HTTPGet(fmt.Sprintf(configuration.SslLabs, host))
+	if errConfig != nil || errHG != nil {
+		return domainr, errConfig
 	}
 	json.Unmarshal([]byte(er), &domainr)
 	return domainr, nil
 }
 
-func getWhois(host string) (models.Domain, error) {
-	var domain models.Domain
-	er, errHTTPGet := getDomainInfo(host)
-	if errHTTPGet != nil {
-		log.Panicf("%s", errHTTPGet.Error())
-		return domain, errHTTPGet
-	}
-	for _, endpoint := range er.Endpoints {
-		log.Printf("%s", endpoint.IPAddress)
-		ser, errShellCall := commons.ShellCall("whois", endpoint.IPAddress)
-		if errShellCall != nil {
-			log.Panicf("%s", errShellCall.Error())
-			return domain, errShellCall
+func getWhois(endpoints []models.Endpoint) ([]models.Domain, error) {
+	var domain []models.Domain
+	for _, endpoint := range endpoints {
+		ser, errSC := commons.ShellCall("whois", endpoint.IPAddress)
+		if errSC != nil {
+			return domain, errSC
 		}
-		log.Printf("%s", ser)
-		return domain, nil
+		log.Printf("-----------\n%s", endpoint.IPAddress)
+		log.Printf("\n%s", ser)
 	}
 	return domain, nil
 }
