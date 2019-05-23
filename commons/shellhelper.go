@@ -2,16 +2,18 @@ package commons
 
 import (
 	"fmt"
-	"os/exec"
+	"log"
 	"runtime"
+
+	pipes "github.com/ebuchman/go-shell-pipes"
 )
 
 // ShellCall : func
-func ShellCall(command string, parameter string) (string, error) {
+func ShellCall(command string, parameter string, grep string) (string, error) {
 	if thismachine := runtime.GOOS; thismachine == "windows" {
 		return "", fmt.Errorf("Cant execute this command in %s", thismachine)
 	}
-	ser, err := shellExecution(command, parameter)
+	ser, err := shellExecution(command, parameter, grep)
 	if err != nil {
 		return "", err
 	}
@@ -19,11 +21,10 @@ func ShellCall(command string, parameter string) (string, error) {
 }
 
 // ShellExecution : func
-func shellExecution(command string, parameter string) (string, error) {
-	out, err := exec.Command(command, parameter).Output()
+func shellExecution(command string, parameter string, grep string) (string, error) {
+	s, err := pipes.RunString(fmt.Sprintf("%s %s | grep %s", command, parameter, grep))
 	if err != nil {
-		return "", fmt.Errorf("%s", err)
+		log.Print(err)
 	}
-	output := string(out[:])
-	return output, nil
+	return s, nil
 }
