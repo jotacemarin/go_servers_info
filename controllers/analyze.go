@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"../commons"
 	"../config"
 	"../models"
-	"golang.org/x/net/html"
+	"github.com/PuerkitoBio/goquery"
 )
 
 // Index : funct
@@ -74,40 +75,50 @@ func getWhois(endpoints []models.Endpoint) ([]models.Server, error) {
 }
 
 func getPageData(host string) (string, string, error) {
-	response, errP := commons.HTTPGet(fmt.Sprintf("http://www.%s", host))
+	remote := fmt.Sprintf("http://www.%s", host)
+	/* response, errP := commons.HTTPGet(remote)
 	if errP != nil {
 		return "", "", errP
-	}
-	title := getTokenPage(string(response), "title")
-	logo := getTokenPage(string(response), "link")
+	} */
+	title := getTokenPage(remote, "title")
+	logo := getTokenPage(remote, "link")
 	return title, logo, nil
 }
 
-func getTokenPage(response string, token string) string {
-	domDoc := html.NewTokenizer(strings.NewReader(response))
-	previousToken := domDoc.Token()
-	var content []string
-loopDoc:
-	for {
-		tt := domDoc.Next()
-		switch {
-		case tt == html.ErrorToken:
-			break loopDoc // End of the document,  done
-		case tt == html.StartTagToken:
-			previousToken = domDoc.Token()
-		case tt == html.TextToken:
-			if previousToken.Data != token {
-				continue
+func getTokenPage(remote string, token string) string {
+	doc, errDom := goquery.NewDocument(remote)
+	if errDom != nil {
+		log.Fatal(errDom)
+	}
+	var typeToken string
+	var values []string
+	doc.Find(token).Each(func(index int, item *goquery.Selection) {
+		if textContent := item.Text(); len(textContent) > 0 {
+			values = append(values, item.Text())
+			if len(typeToken) == 0 {
+				typeToken = token
 			}
-			if TxtContent := strings.TrimSpace(html.UnescapeString(string(domDoc.Text()))); len(TxtContent) > 0 {
-				fmt.Printf("%s\n", TxtContent)
-				content = append(content, TxtContent)
+		} else {
+			resource, _ := item.Attr("href")
+			values = append(values, resource)
+			if len(typeToken) == 0 {
+				typeToken = token
+			}
+		}
+	})
+	fmt.Printf("%s\n", typeToken)
+	var value string
+	for _, text := range values {
+		if typeToken == "title" {
+			if len(value) == 0 {
+				value = text
+			}
+		} else if typeToken == "link" {
+			if len(string(regexp.MustCompile(".png|.jpg").Find([]byte(text)))) > 0 {
+				value = text
 			}
 		}
 	}
-	if length := len(content); length > 0 {
-		return content[0]
-	} else {
-		return ""
-	}
+	fmt.Printf("%s\n", value)
+	return value
 }
