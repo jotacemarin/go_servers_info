@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"sort"
 	"strings"
 
 	"../commons"
@@ -34,6 +35,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		if errW != nil {
 			commons.BuilderJSON(w, false, 0, nil)
 		}
+		domain.SslGrade = getPoorSslGrade(servers)
 		domain.Servers = servers
 		domain.IsDown = false
 	} else {
@@ -76,10 +78,6 @@ func getWhois(endpoints []models.Endpoint) ([]models.Server, error) {
 
 func getPageData(host string) (string, string, error) {
 	remote := fmt.Sprintf("http://www.%s", host)
-	/* response, errP := commons.HTTPGet(remote)
-	if errP != nil {
-		return "", "", errP
-	} */
 	title := getTokenPage(remote, "title")
 	logo := getTokenPage(remote, "link")
 	return title, logo, nil
@@ -121,4 +119,13 @@ func getTokenPage(remote string, token string) string {
 	}
 	fmt.Printf("%s\n", value)
 	return value
+}
+
+func getPoorSslGrade(servers []models.Server) string {
+	var grades []string
+	for _, grade := range servers {
+		grades = append(grades, grade.SslGrade)
+	}
+	sort.Strings(grades)
+	return servers[len(grades)-1].SslGrade
 }
