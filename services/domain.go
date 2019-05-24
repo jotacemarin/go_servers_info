@@ -50,17 +50,22 @@ func GetLast(domain models.Domain) (models.Domain, error) {
 func HistoryDomains() ([]models.Domain, error) {
 	var domains []models.Domain
 	database := db.Db
-	queryResult, errQ := database.Query("SELECT servers_changed, ssl_grade, previus_ssl_grade, logo, title, is_down FROM domain WHERE id IN (SELECT MAX(id) as lastId FROM domain GROUP BY title);")
+	queryResult, errQ := database.Query("SELECT id, servers_changed, ssl_grade, previus_ssl_grade, logo, title, is_down FROM domain WHERE id IN (SELECT MAX(id) as lastId FROM domain GROUP BY title);")
 	if errQ != nil {
 		return domains, errQ
 	}
 	defer queryResult.Close()
 	for queryResult.Next() {
 		var domain models.Domain
-		errSc := queryResult.Scan(&domain.ServerChanged, &domain.SslGrade, &domain.PreviusSslGrade, &domain.Logo, &domain.Title, &domain.IsDown)
+		errSc := queryResult.Scan(&domain.ID, &domain.ServerChanged, &domain.SslGrade, &domain.PreviusSslGrade, &domain.Logo, &domain.Title, &domain.IsDown)
 		if errSc != nil {
 			return domains, errSc
 		}
+		servers, errGs := GetServers(domain.ID)
+		if errGs != nil {
+			return domains, errGs
+		}
+		domain.Servers = append(servers)
 		domains = append(domains, domain)
 	}
 	return domains, nil
