@@ -89,7 +89,6 @@ func getTokenPage(remote string, token string) string {
 			}
 		}
 	})
-	fmt.Printf("%s\n", typeToken)
 	var value string
 	for _, text := range values {
 		if typeToken == "title" {
@@ -102,7 +101,6 @@ func getTokenPage(remote string, token string) string {
 			}
 		}
 	}
-	fmt.Printf("%s\n", value)
 	return value
 }
 

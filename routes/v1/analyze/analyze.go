@@ -9,5 +9,6 @@ import (
 func Routes() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/analyze", analyzecontroller.Analyze)
+	router.Get("/history", analyzecontroller.GetHistory)
 	return router
 }

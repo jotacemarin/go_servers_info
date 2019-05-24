@@ -50,3 +50,11 @@ func Analyze(w http.ResponseWriter, r *http.Request) {
 	}
 	commons.BuilderJSON(w, true, http.StatusOK, domain)
 }
+
+func GetHistory(w http.ResponseWriter, r *http.Request) {
+	domains, errHd := services.HistoryDomains()
+	if errHd != nil {
+		commons.BuilderJSON(w, false, 0, nil)
+	}
+	commons.BuilderJSON(w, true, http.StatusOK, domains)
+}
