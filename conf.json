@@ -1,4 +1,6 @@
 {
     "port":":4500",
-    "ssllabs":"https://api.ssllabs.com/api/v3/analyze?host=%s"
+    "ssllabs":"https://api.ssllabs.com/api/v3/analyze?host=%s",
+    "db_driver":"postgres",
+    "db_connection":"postgresql://root@localhost:26257?sslmode=disable"
 }

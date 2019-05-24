@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"./config"
+	"./db"
 	"./routes"
 
 	"github.com/go-chi/chi"
@@ -23,5 +24,6 @@ func main() {
 	if err := chi.Walk(r, walkFunc); err != nil {
 		log.Panicf("error: %s", err.Error())
 	}
+	db.CreateTable(db.Db)
 	log.Fatal(http.ListenAndServe(configuration.Port, r))
 }

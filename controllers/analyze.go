@@ -6,16 +6,21 @@ import (
 
 	"../commons"
 	"../models"
+	"../services"
 )
 
 // Index : funct
 func Index(w http.ResponseWriter, r *http.Request) {
-	er, errDI := commons.GetDomainInfo(r.URL.Query().Get("host"))
+	queryParam := r.URL.Query().Get("host")
+	if len(queryParam) == 0 {
+		commons.BuilderJSON(w, false, 0, nil)
+	}
+	er, errDI := commons.GetDomainInfo(queryParam)
 	if errDI != nil {
 		commons.BuilderJSON(w, false, 0, nil)
 	}
 	var domain models.Domain
-	if title, logo, errP := commons.GetPageData(r.URL.Query().Get("host")); len(title) > 0 || len(logo) > 0 {
+	if title, logo, errP := commons.GetPageData(queryParam); len(title) > 0 || len(logo) > 0 {
 		if errP != nil {
 			log.Print(errP)
 			commons.BuilderJSON(w, false, 0, nil)
@@ -33,6 +38,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		domain.IsDown = false
 	} else {
 		domain.IsDown = true
+	}
+	getLastDomain, errGL := services.GetLast(domain)
+	if errGL != nil {
+		commons.BuilderJSON(w, false, 0, nil)
+	}
+	domain.PreviusSslGrade = getLastDomain.SslGrade
+	_, errInsert := services.InsertDomain(domain)
+	if errInsert != nil {
+		commons.BuilderJSON(w, false, 0, nil)
 	}
 	commons.BuilderJSON(w, true, http.StatusOK, domain)
 }
