@@ -9,8 +9,8 @@ import (
 	"../services"
 )
 
-// Index : funct
-func Index(w http.ResponseWriter, r *http.Request) {
+// Analyze : funct
+func Analyze(w http.ResponseWriter, r *http.Request) {
 	queryParam := r.URL.Query().Get("host")
 	if len(queryParam) == 0 {
 		commons.BuilderJSON(w, false, 0, nil)

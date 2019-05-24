@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"fmt"
 
 	"../db"
 	"../models"
@@ -11,15 +12,23 @@ import (
 func InsertDomain(domain models.Domain) (models.Domain, error) {
 	var newdomain models.Domain
 	database := db.Db
-	query, errdbP := database.Prepare("INSERT INTO domain(servers_changed, ssl_grade, previus_ssl_grade, logo, title, is_down) VALUES ($1, $2, $3, $4, $5, $6)")
+	queryDomain, errdbP := database.Prepare("INSERT INTO domain(servers_changed, ssl_grade, previus_ssl_grade, logo, title, is_down) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id")
 	if errdbP != nil {
 		return newdomain, errdbP
 	}
-	_, errqEx := query.Exec(domain.ServerChanged, domain.SslGrade, domain.PreviusSslGrade, domain.Logo, domain.Title, domain.IsDown)
+	var lastID int
+	errqEx := queryDomain.QueryRow(domain.ServerChanged, domain.SslGrade, domain.PreviusSslGrade, domain.Logo, domain.Title, domain.IsDown).Scan(&lastID)
 	if errqEx != nil {
 		return newdomain, errqEx
 	}
-	defer query.Close()
+	defer queryDomain.Close()
+	fmt.Printf("%d\n", lastID)
+	for _, server := range domain.Servers {
+		_, errIS := InsertServer(server, lastID)
+		if errIS != nil {
+			return newdomain, errIS
+		}
+	}
 	return newdomain, nil
 }
 

@@ -26,6 +26,7 @@ func HTTPGet(url string) ([]byte, error) {
 	return data, nil
 }
 
+// GetDomainInfo : func
 func GetDomainInfo(host string) (models.DomainR, error) {
 	var domainr models.DomainR
 	configuration, errConfig := config.LoadConfig()
@@ -41,6 +42,7 @@ func GetDomainInfo(host string) (models.DomainR, error) {
 	return domainr, nil
 }
 
+// GetWhois : func
 func GetWhois(endpoints []models.Endpoint) ([]models.Server, error) {
 	var servers []models.Server
 	for _, endpoint := range endpoints {
@@ -53,11 +55,12 @@ func GetWhois(endpoints []models.Endpoint) ([]models.Server, error) {
 		}
 		sser1 := strings.TrimSpace(strings.Replace(ser1, "Organization:", "", -1))
 		sser2 := strings.TrimSpace(strings.Replace(ser2, "Country:", "", -1))
-		servers = append(servers, models.Server{endpoint.IPAddress, endpoint.Grade, sser2, sser1})
+		servers = append(servers, models.Server{0, endpoint.IPAddress, endpoint.Grade, sser2, sser1})
 	}
 	return servers, nil
 }
 
+// GetPageData : func
 func GetPageData(host string) (string, string, error) {
 	remote := fmt.Sprintf("http://www.%s", host)
 	title := getTokenPage(remote, "title")
@@ -103,6 +106,7 @@ func getTokenPage(remote string, token string) string {
 	return value
 }
 
+// GetPoorSslGrade : func
 func GetPoorSslGrade(servers []models.Server) string {
 	var grades []string
 	for _, grade := range servers {
