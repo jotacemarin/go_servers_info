@@ -13,3 +13,8 @@ Technical test for truora write by Julio Marin
 * `github.com/ebuchman/go-shell-pipes` for execute shell commands with pipes
 * `github.com/go-chi/chi` for routing restful services
 * `github.com/lib/pq` postgres driver use to connect with cockroach db
+
+## Routes
+* GET `/api/v1/analyze?host=<string>` to get domain' information
+* GET `/api/v1/gostatus` to get status of server
+* GET `/api/v1/history` to get search history

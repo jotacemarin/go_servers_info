@@ -10,5 +10,6 @@ func Routes() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/analyze", analyzecontroller.Analyze)
 	router.Get("/history", analyzecontroller.GetHistory)
+	router.Get("/gostatus", analyzecontroller.GoStatus)
 	return router
 }
